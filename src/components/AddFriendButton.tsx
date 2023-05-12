@@ -26,7 +26,7 @@ const AddFriendButton: FC<AddFriendButtonProps> = ({}) => {
 
   const addFriend = async (email: string) => {
     try {
-      const validatedEmail = addFriendValidator.parse(email);
+      const validatedEmail = addFriendValidator.parse({ email });
 
       await axios.post("/api/friends/add", {
         email: validatedEmail,
@@ -35,22 +35,16 @@ const AddFriendButton: FC<AddFriendButtonProps> = ({}) => {
       setShowSuccessState(true);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setError("email", {
-          message: error.message,
-        });
+        setError("email", { message: error.message });
         return;
       }
 
       if (error instanceof AxiosError) {
-        setError("email", {
-          message: error.response?.data,
-        });
+        setError("email", { message: error.response?.data });
         return;
       }
 
-      setError("email", {
-        message: "Something went wrong",
-      });
+      setError("email", { message: "Something went wrong." });
     }
   };
 
@@ -64,8 +58,9 @@ const AddFriendButton: FC<AddFriendButtonProps> = ({}) => {
         htmlFor="email"
         className="block text-sm font-medium leading-6 text-gray-900"
       >
-        Add friend by email
+        Add friend by E-Mail
       </label>
+
       <div className="mt-2 flex gap-4">
         <input
           {...register("email")}
