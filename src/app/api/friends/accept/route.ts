@@ -6,9 +6,13 @@ import { z } from "zod";
 
 export async function POST(req: Request) {
   try {
-    const body = req.json();
+    // console.log("🦎");
+    const body = await req.json();
+    // console.log(body, "stuff");
 
+    // console.log(z.object({ id: z.string() }).parse(body));
     const { id: idToAdd } = z.object({ id: z.string() }).parse(body);
+    // console.log("🐯");
 
     const session = await getServerSession(authOptions);
 
@@ -41,9 +45,10 @@ export async function POST(req: Request) {
 
     await db.sadd(`user:${idToAdd}:friends`, session.user.id);
 
+    await db.srem(`user:${session.user.id}:incoming_friend_requests`, idToAdd);
+
     // await db.srem(`user:${idToAdd}:outbound_friend_requests`, session.user.id);
 
-    await db.srem(`user:${session.user.id}:incoming_friend_requests`, idToAdd);
 
     return new Response("OK");
   } catch (error) {

@@ -6,15 +6,15 @@ import { FC, useState } from "react";
 
 interface FriendRequestsSidebarOptionProps {
   sessionId: string;
-  initalUnseenRequestCount: number;
+  initialUnseenRequestCount: number;
 }
 
 const FriendRequestsSidebarOptions: FC<FriendRequestsSidebarOptionProps> = ({
   sessionId,
-  initalUnseenRequestCount,
+  initialUnseenRequestCount,
 }) => {
   const [unseenRequestCount, setUnseenRequestCount] = useState<number>(
-    initalUnseenRequestCount
+    initialUnseenRequestCount
   );
   return (
     <Link
