@@ -1,26 +1,27 @@
-import FriendRequestsSidebarOptions from "@/components/FriendRequestsSidebarOptions";
-import { Icon, Icons } from "@/components/Icons";
-import SidebarChatList from "@/components/SidebarChatList";
+import { Icons } from "@/components/Icons";
 import SignOutButton from "@/components/SignOutButton";
-import { getFriendsByUserId } from "@/helpers/get-friends-by-user-id";
-import { fetchRedis } from "@/helpers/redis";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
+import FriendRequestSidebarOptions from "@/components/FriendRequestSidebarOptions";
+import { fetchRedis } from "@/helpers/redis";
+import { getFriendsByUserId } from "@/helpers/get-friends-by-user-id";
+import SidebarChatList from "@/components/SidebarChatList";
+import MobileChatLayout from "@/components/MobileChatLayout";
+import { SidebarOption } from "@/types/typings";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-interface SidebarOption {
-  id: number;
-  name: string;
-  href: string;
-  Icon: Icon;
-}
+// Done after the video and optional: add page metadata
+export const metadata = {
+  title: "FriendZone | Dashboard",
+  description: "Your dashboard",
+};
 
 const sidebarOptions: SidebarOption[] = [
   {
@@ -36,6 +37,7 @@ const Layout = async ({ children }: LayoutProps) => {
   if (!session) notFound();
 
   const friends = await getFriendsByUserId(session.user.id);
+  console.log("friends", friends);
 
   const unseenRequestCount = (
     (await fetchRedis(
@@ -46,7 +48,16 @@ const Layout = async ({ children }: LayoutProps) => {
 
   return (
     <div className="w-full flex h-screen">
-      <div className="flex h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
+      <div className="md:hidden">
+        <MobileChatLayout
+          friends={friends}
+          session={session}
+          sidebarOptions={sidebarOptions}
+          unseenRequestCount={unseenRequestCount}
+        />
+      </div>
+
+      <div className="hidden md:flex h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
         <Link href="/dashboard" className="flex h-16 shrink-0 items-center">
           <Icons.Logo className="h-8 w-auto text-indigo-600" />
         </Link>
@@ -85,8 +96,9 @@ const Layout = async ({ children }: LayoutProps) => {
                     </li>
                   );
                 })}
+
                 <li>
-                  <FriendRequestsSidebarOptions
+                  <FriendRequestSidebarOptions
                     sessionId={session.user.id}
                     initialUnseenRequestCount={unseenRequestCount}
                   />
@@ -115,7 +127,7 @@ const Layout = async ({ children }: LayoutProps) => {
                 </div>
               </div>
 
-              <SignOutButton className="h-full aspect-sqaure" />
+              <SignOutButton className="h-full aspect-square" />
             </li>
           </ul>
         </nav>

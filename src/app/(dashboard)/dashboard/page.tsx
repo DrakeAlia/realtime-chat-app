@@ -17,12 +17,11 @@ const page = async ({}) => {
   const friendsWithLastMessage = await Promise.all(
     friends.map(async (friend) => {
       const [lastMessageRaw] = (await fetchRedis(
-        `zrange`,
+        "zrange",
         `chat:${chatHrefConstructor(session.user.id, friend.id)}:messages`,
         -1,
         -1
       )) as string[];
-      // console.log("lastMessage", lastMessage);
 
       const lastMessage = JSON.parse(lastMessageRaw) as Message;
 
@@ -33,13 +32,11 @@ const page = async ({}) => {
     })
   );
 
-  // console.log("friendsWithLastMessage", friendsWithLastMessage);
-
   return (
     <div className="container py-12">
       <h1 className="font-bold text-5xl mb-8">Recent chats</h1>
       {friendsWithLastMessage.length === 0 ? (
-        <p className="text-sm text-zinc-500">Nothing to show here....</p>
+        <p className="text-sm text-zinc-500">Nothing to show here...</p>
       ) : (
         friendsWithLastMessage.map((friend) => (
           <div
@@ -62,7 +59,7 @@ const page = async ({}) => {
                   <Image
                     referrerPolicy="no-referrer"
                     className="rounded-full"
-                    alt={`${friend.name}'s profile picture`}
+                    alt={`${friend.name} profile picture`}
                     src={friend.image}
                     fill
                   />
