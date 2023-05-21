@@ -2,11 +2,31 @@ import ChatInput from "@/components/ChatInput";
 import Messages from "@/components/Messages";
 import { fetchRedis } from "@/helpers/redis";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { messageArrayValidator } from "@/lib/validations/message";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+
+// The following generateMetadata functiion was written after the video and is purely optional
+export async function generateMetadata({
+  params,
+}: {
+  params: { chatId: string };
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session) notFound();
+  const [userId1, userId2] = params.chatId.split("--");
+  const { user } = session;
+
+  const chatPartnerId = user.id === userId1 ? userId2 : userId1;
+  const chatPartnerRaw = (await fetchRedis(
+    "get",
+    `user:${chatPartnerId}`
+  )) as string;
+  const chatPartner = JSON.parse(chatPartnerRaw) as User;
+
+  return { title: `FriendZone | ${chatPartner.name} chat` };
+}
 
 interface PageProps {
   params: {
@@ -50,6 +70,7 @@ const page = async ({ params }: PageProps) => {
 
   const chatPartnerId = user.id === userId1 ? userId2 : userId1;
 
+  // new
   const chatPartnerRaw = (await fetchRedis(
     "get",
     `user:${chatPartnerId}`
